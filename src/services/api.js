@@ -10,25 +10,36 @@ const BASE_FUNCTION_URL = import.meta.env.DEV
  * @throws {Error} If the request fails
  */
 async function makeProxyRequest(endpoint, params = {}) {
-  const url = new URL(BASE_FUNCTION_URL);
-  url.searchParams.append('endpoint', endpoint);
-  
-  // Add additional parameters
-  Object.entries(params).forEach(([key, value]) => {
-    if (value) url.searchParams.append(key, value);
-  });
+  if (!endpoint) {
+    throw new Error('Endpoint is required');
+  }
 
   try {
-    const response = await fetch(url.toString());
-    const data = await response.json();
+    const url = new URL(BASE_FUNCTION_URL);
+    url.searchParams.append('endpoint', endpoint);
+    
+    // Add additional parameters
+    Object.entries(params).forEach(([key, value]) => {
+      if (value) url.searchParams.append(key, value);
+    });
 
+    console.log(`Making request to endpoint: ${endpoint}`);
+    const response = await fetch(url.toString());
+    
     if (!response.ok) {
-      throw new Error(data.details || 'Failed to fetch data from TMDB');
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage = errorData.details || errorData.error || `HTTP error! status: ${response.status}`;
+      console.error(`API Error for ${endpoint}:`, errorMessage);
+      throw new Error(errorMessage);
     }
 
+    const data = await response.json();
     return data;
   } catch (error) {
     console.error(`API Error (${endpoint}):`, error);
+    if (error.message.includes('API key')) {
+      throw new Error('Authentication error. Please check API configuration.');
+    }
     throw error;
   }
 }

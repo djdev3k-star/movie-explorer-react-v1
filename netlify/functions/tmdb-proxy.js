@@ -31,6 +31,11 @@ function validateEndpoint(endpoint) {
  * @returns {string} - Constructed URL
  */
 function constructTmdbUrl(endpoint, queryParams, apiKey) {
+  if (!apiKey) {
+    console.error('API Key is missing');
+    throw new Error('API key is required');
+  }
+
   const url = new URL(`https://api.themoviedb.org/3/${endpoint}`);
   
   // Add API key
@@ -43,19 +48,39 @@ function constructTmdbUrl(endpoint, queryParams, apiKey) {
     }
   }
   
+  // Log the URL without the API key for debugging
+  const debugUrl = url.toString().replace(apiKey, 'REDACTED');
+  console.log('Making request to:', debugUrl);
+  
   return url.toString();
 }
 
 /**
  * Netlify Function handler for TMDB API proxy
  */
-export async function handler(event, context) {
+export async function handler(event) {
   // Enable CORS for development
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Content-Type': 'application/json'
   };
+
+  // Get API key from environment
+  const apiKey = process.env.TMDB_API_KEY;
+  
+  // Verify API key is available
+  if (!apiKey) {
+    console.error('TMDB_API_KEY is not set in environment variables');
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({
+        error: 'Server configuration error',
+        details: 'API key not configured'
+      })
+    };
+  }
 
   // Handle OPTIONS requests for CORS
   if (event.httpMethod === 'OPTIONS') {
