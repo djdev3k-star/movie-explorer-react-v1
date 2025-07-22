@@ -18,7 +18,7 @@ export default function Home () {
                 const popularMovies = await getPopularMovies();
                 setMovies(popularMovies)
             } catch (err) {
-                console.log(err)
+           
                 setError("Failed to load movies")
             }
             finally {
