@@ -10,7 +10,7 @@ export default function NavBar() {
             <div className="navbar-brand">
                 <Link to="/">
                     <span className="logo">🎬</span> 
-                    Movie Explorer
+                    Movie Trek
                 </Link>
             </div>
 

@@ -77,7 +77,7 @@ export default function Home () {
     return (        
         <div className="home">
             <div className="hero-section">
-                <h1 className="hero-title">🎬 Movie Explorer</h1>
+                <h1 className="hero-title">🎬 Movie Trek</h1>
                 <p className="hero-subtitle">
                     Discover amazing movies, create your favorites collection, and explore the world of cinema
                 </p>
