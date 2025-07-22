@@ -1,0 +1,52 @@
+# --- Node ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Build Output ---
+dist/
+build/
+
+# --- Vite ---
+.vite/
+
+# --- Env Files ---
+.env
+.env.*.local
+.env.local
+
+# --- Netlify Functions (if built locally) ---
+.netlify/
+
+# --- Log Files ---
+*.log
+
+# --- OS Files ---
+.DS_Store
+Thumbs.db
+
+# --- IDE/Editor Config ---
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# --- Misc ---
+*.tgz
+*.gz
+*.zip
+coverage/
+*.tsbuildinfo
+
+# --- GitHub CLI Auth (optional but safer to ignore) ---
+.gh/
+
+# --- Mac/Linux trash ---
+.trash/
+
+# --- Optional: Local Airtable or Firebase config ---
+firebase-debug.log
+.firebaserc
+.firestore/

@@ -1,0 +1,52 @@
+//GET https://api.themoviedb.org/3/movie/{movie_id}/credits?api_key={API_KEY}
+
+
+{
+    "id": 550,
+    "cast": [
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 819,
+        "known_for_department": "Acting",
+        "name": "Edward Norton",
+        "original_name": "Edward Norton",
+        "popularity": 17.86,
+        "profile_path": "/eIkFHNlfretLS1spAcIoihKUS62.jpg",
+        "cast_id": 4,
+        "character": "The Narrator",
+        "credit_id": "52fe4250c3a36847f80149f3",
+        "order": 0
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 287,
+        "known_for_department": "Acting",
+        "name": "Brad Pitt",
+        "original_name": "Brad Pitt",
+        "popularity": 38.77,
+        "profile_path": "/oTB9vGIBacH5aQNS0pUM74QSWuf.jpg",
+        "cast_id": 5,
+        "character": "Tyler Durden",
+        "credit_id": "52fe4250c3a36847f80149f7",
+        "order": 1
+      }
+    ],
+    "crew": [
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 7467,
+        "known_for_department": "Directing",
+        "name": "David Fincher",
+        "original_name": "David Fincher",
+        "popularity": 7.68,
+        "profile_path": "/cE9HjF3RUlzGjvAR8nXApqp6n9E.jpg",
+        "credit_id": "52fe4250c3a36847f80149eb",
+        "department": "Directing",
+        "job": "Director"
+      }
+    ]
+  }
+  
