@@ -1,6 +1,10 @@
-const BASE_FUNCTION_URL = import.meta.env.DEV 
-  ? "http://localhost:8888/.netlify/functions/tmdb-proxy"
-  : "/.netlify/functions/tmdb-proxy";
+const getBaseUrl = () => {
+  if (import.meta.env.DEV) {
+    return "http://localhost:8888/.netlify/functions/tmdb-proxy";
+  }
+  // In production, use the full URL
+  return `${window.location.origin}/.netlify/functions/tmdb-proxy`;
+};
 
 /**
  * Makes a request to the TMDB API proxy
@@ -15,7 +19,7 @@ async function makeProxyRequest(endpoint, params = {}) {
   }
 
   try {
-    const url = new URL(BASE_FUNCTION_URL);
+    const url = new URL(getBaseUrl());
     url.searchParams.append('endpoint', endpoint);
     
     // Add additional parameters
