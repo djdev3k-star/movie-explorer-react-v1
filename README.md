@@ -7,6 +7,7 @@ A sleek, modern movie discovery app built with React that helps you explore and 
 </div>
 
 📘 **Quick Links**:
+
 - [Netlify Deployment Guide](DEPLOY.md)
 - [Contributing Guidelines](CONTRIBUTING.md)
 - [Tech Stack Overview](#%EF%B8%8F-technology-stack)
@@ -39,17 +40,20 @@ A sleek, modern movie discovery app built with React that helps you explore and 
 ## 🚀 Getting Started
 
 ### 1. Clone the Repository
+
 \`\`\`bash
 git clone https://github.com/djdev3k-star/movie-trek-react-v1.git
 cd movie-trek-react-v1
 \`\`\`
 
 ### 2. Install Dependencies
+
 \`\`\`bash
 npm install
 \`\`\`
 
 ### 3. Set Up Environment Variables
+
 1. Sign up at [The Movie Database (TMDB)](https://www.themoviedb.org/)
 2. Get your API key
 3. Create \`.env\` file:
@@ -58,6 +62,7 @@ npm install
    \`\`\`
 
 ### 4. Start Development Server
+
 \`\`\`bash
 npm run dev
 \`\`\`
