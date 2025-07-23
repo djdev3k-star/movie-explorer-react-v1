@@ -6,6 +6,11 @@ A sleek, modern movie discovery app built with React that helps you explore and 
   <img src="src/assets/logo.svg" alt="Movie Trek Logo" width="200px"/>
 </div>
 
+📘 **Quick Links**:
+- [Netlify Deployment Guide](DEPLOY.md)
+- [Contributing Guidelines](CONTRIBUTING.md)
+- [Tech Stack Overview](#%EF%B8%8F-technology-stack)
+
 ## 🌟 Features Showcase
 
 <div align="center">
