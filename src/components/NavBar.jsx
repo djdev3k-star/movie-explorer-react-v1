@@ -18,6 +18,8 @@ export default function NavBar() {
             <button 
                 className={`mobile-menu-btn ${mobileMenuOpen ? 'active' : ''}`}
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="Toggle navigation menu"
+                aria-expanded={mobileMenuOpen}
             >
                 <span></span>
                 <span></span>

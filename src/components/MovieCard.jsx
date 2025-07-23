@@ -48,17 +48,26 @@ export default function MovieCard({movie}) {
         return null;
     };
 
+    const qualityBadge = getQualityBadge(movie.vote_average);
+
     return (
         <div 
             className="movie-card"
             onClick={() => navigate(`/movie/${movie.id}`)}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate(`/movie/${movie.id}`);
+                }
+            }}
+            tabIndex={0}
             role="article"
             aria-label={`Movie: ${movie.title}`}
         >
             <div className="movie-poster">
-                {getQualityBadge(movie.vote_average) && (
+                {qualityBadge && (
                     <div className="quality-badge" role="status">
-                        {getQualityBadge(movie.vote_average)}
+                        {qualityBadge}
                     </div>
                 )}
                 <picture>

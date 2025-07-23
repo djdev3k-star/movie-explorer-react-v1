@@ -1,4 +1,5 @@
 import MovieCard from "../components/MovieCard"
+import Search from "../components/Search";
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"; // For navigation
 import { searchMovies, getPopularMovies } from "../services/api"
@@ -9,6 +10,7 @@ export default function Home () {
     const [movies, setMovies] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true)
+    const [errorType, setErrorType] = useState(null); // 'load' or 'search'
 
     const navigate = useNavigate(); // Hook to handle navigation
 
@@ -18,8 +20,8 @@ export default function Home () {
                 const popularMovies = await getPopularMovies();
                 setMovies(popularMovies)
             } catch (err) {
-           
-                setError("Failed to load movies")
+                setError("Failed to load popular movies. Please try again later.");
+                setErrorType('load');
             }
             finally {
                 setLoading(false)
@@ -37,11 +39,13 @@ export default function Home () {
         try {
             const searchResults = await searchMovies(searchQuery)
             setMovies(searchResults)
-            setError(null) 
+            setError(null)
+            setErrorType(null);
         }            
             catch (err) {
             console.log(err)
-            setError("Failed to search movies ...") 
+            setError("Failed to search movies. Please check your query or try again later.")
+            setErrorType('search');
         }
             finally { 
                 setLoading(false) 
@@ -67,7 +71,7 @@ export default function Home () {
         return (
             <div className="home">
                 <div className="error-container">
-                    <h2 className="error-title">Oops! Something went wrong</h2>
+                    <h2 className="error-title">{errorType === 'search' ? 'Search Error' : 'Loading Error'}</h2>
                     <p className="error-message">{error}</p>
                 </div>
             </div>
@@ -78,25 +82,18 @@ export default function Home () {
         <div className="home">
             <div className="hero-section">
                 <div className="hero-content">
-                    <h1 className="hero-title">🎬 Movie Trek</h1>
+                    <h1 className="hero-title">Movie Trek</h1>
                     <p className="hero-subtitle">
                         Discover amazing movies, create your favorites collection, and explore the world of cinema
                     </p>
                 </div>
             </div>
 
-            <form onSubmit={handleSearch} className="search-form">
-                <input
-                    type="text"
-                    placeholder="Search for movies..."
-                    className="search-input"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <button type="submit" className="search-button" disabled={loading}>
-                    {loading ? <div className="loading"></div> : 'Search'}
-                </button>
-            </form>
+            <Search
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                setMovies={setMovies}
+            />
 
             <div className="section-header">
                 <h2 className="section-title">

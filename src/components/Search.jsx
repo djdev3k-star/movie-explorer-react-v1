@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import '../css/Search.css';
 import { searchMovies } from '../services/api';
 
@@ -6,32 +6,53 @@ export default function Search(
     {
         searchQuery,
         setSearchQuery,
-        loading,
-        setLoading,
         setMovies,
-        setError,
     }
 ) {
       
 
 
-    // Search Event Handler
+    // Debounce timer ref
+    const debounceRef = useRef();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    // Debounced live search effect
+    useEffect(() => {
+        if (!searchQuery.trim()) {
+            setMovies([]);
+            setError(null);
+            setLoading(false);
+            return;
+        }
+        setLoading(true);
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(async () => {
+            try {
+                const searchResults = await searchMovies(searchQuery);
+                setMovies(searchResults);
+                setError(null);
+            } catch (err) {
+                setError("Failed to search movies...");
+            } finally {
+                setLoading(false);
+            }
+        }, 400);
+        return () => clearTimeout(debounceRef.current);
+        // eslint-disable-next-line
+    }, [searchQuery, setMovies]);
+
+    // For accessibility, still allow form submit
     const handleSearch = async (e) => {
         e.preventDefault();
         if (!searchQuery.trim()) return;
-        if (loading) return;
-
         setLoading(true);
         try {
             const searchResults = await searchMovies(searchQuery);
             setMovies(searchResults);
             setError(null);
         } catch (err) {
-            if (err && err.message && err.message.toLowerCase().includes('network')) {
-                setError("Network error. Please check your connection.");
-            } else {
-                setError("Failed to search movies...");
-            }
+            setError("Failed to search movies...");
         } finally {
             setLoading(false);
         }
@@ -40,7 +61,7 @@ export default function Search(
     // Clear error when user starts typing a new query
     const handleInputChange = (e) => {
         setSearchQuery(e.target.value);
-        if (e.target.value && typeof setError === 'function') {
+        if (e.target.value) {
             setError(null);
         }
     };
@@ -53,11 +74,12 @@ export default function Search(
                 className="search-input"
                 value={searchQuery}
                 onChange={handleInputChange}
+                aria-label="Search for movies"
             />
             <button type="submit" className="search-button" disabled={loading}>
                 {loading ? "Loading..." : "Search"}
             </button>
-            {error && <p className="error-message">{error}</p>}
+            {error && <p className="error-message" role="alert">{error}</p>}
         </form>
     );
 }
