@@ -4,13 +4,16 @@ import { BrowserRouter } from 'react-router-dom'
 import { MovieProvider } from './contexts/MovieContext'
 import './css/index.css'
 import App from './App.jsx'
+import { FireproofProvider } from './contexts/FireproofContext';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <MovieProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <FireproofProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </FireproofProvider>
     </MovieProvider>
   </StrictMode>,
 )

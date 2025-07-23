@@ -1,8 +1,8 @@
-import { useFireproof } from "use-fireproof";
+import { useFireproofContext } from "../contexts/FireproofContext";
 import { useState } from "react";
 
 export default function App() {
-  const { database, useDocument, useLiveQuery } = useFireproof("movie-explorer-db");
+  const { database, useDocument, useLiveQuery } = useFireproofContext();
   const { doc, merge, submit } = useDocument({ title: "", review: "", favorite: false, rating: "", flaggedScenes: [] });
   const { docs } = useLiveQuery("_id", { descending: true });
   const [filterFavs, setFilterFavs] = useState(false);

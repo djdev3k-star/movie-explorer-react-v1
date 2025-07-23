@@ -3,6 +3,7 @@ import Search from "../components/Search";
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"; // For navigation
 import { searchMovies, getPopularMovies, getMovieCertification } from "../services/api"
+import { useFireproofContext } from "../contexts/FireproofContext";
 import '../css/Home.css'
 
 export default function Home () {
@@ -11,6 +12,9 @@ export default function Home () {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true)
     const [errorType, setErrorType] = useState(null); // 'load' or 'search'
+
+    const { useLiveQuery } = useFireproofContext();
+    const { docs: userMovies } = useLiveQuery("_id", { descending: true });
 
     const navigate = useNavigate(); // Hook to handle navigation
 
@@ -88,6 +92,17 @@ export default function Home () {
         );
     }
 
+    // Merge TMDB movies with Fireproof userDocs (for favorites, flags, review, rating)
+    const mergedMovies = movies.map(tmdb => {
+        const userDoc = userMovies.find(u => u._id === tmdb.id.toString());
+        return userDoc
+            ? { ...tmdb, ...userDoc }
+            : tmdb;
+    });
+    // Include user-only docs (movies without TMDB id)
+    const userOnly = userMovies.filter(u => !u.id);
+    const allMovies = [...mergedMovies, ...userOnly];
+
     return (        
         <div className="home">
             <div className="hero-section">
@@ -110,22 +125,22 @@ export default function Home () {
                     {searchQuery ? `Search Results for "${searchQuery}"` : 'Popular Movies'}
                 </h2>
                 <p className="section-subtitle">
-                    {searchQuery ? `Found ${movies.length} movies` : 'Trending movies everyone is watching'}
+                    {searchQuery ? `Found ${allMovies.length} movies` : 'Trending movies everyone is watching'}
                 </p>
             </div>
 
-            {movies.length === 0 ? (
+            {allMovies.length === 0 ? (
                 <div className="empty-state">
                     <h3>No movies found</h3>
                     <p>Try searching for something else or check back later for more movies.</p>
                 </div>
             ) : (
                 <div className="movies-grid">
-                    {movies.map((movie) => (
+                    {allMovies.map((movie) => (
                         <div
-                            key={movie.id}
+                            key={movie._id || movie.id}
                             className="movie-card-container"
-                            onClick={() => handleMovieClick(movie.id)}
+                            onClick={() => handleMovieClick(movie.id || movie._id)}
                         >
                             <MovieCard movie={movie} certification={movie.certification} />
                         </div>

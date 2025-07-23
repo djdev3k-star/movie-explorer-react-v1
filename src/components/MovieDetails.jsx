@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { getMovieDetails, getMovieCredits, getMovieVideos, getMovieCertification } from '../services/api';
-import { useMovieContext } from '../contexts/MovieContext';
+import { useFireproofContext } from '../contexts/FireproofContext';
 import '../css/MovieDetails.css';
 
 // Helper function for safe property access
@@ -29,28 +29,69 @@ const MovieDetails = ({ movieId }) => {
     const [cast, setCast] = useState([]);
     const [groupedVideos, setGroupedVideos] = useState({});
     const [userRating, setUserRating] = useState(0);
+    const [isFavorite, setIsFavorite] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { addToFavorites, removeFromFavorites, isFavorite } = useMovieContext();
+    const { database, useLiveQuery } = useFireproofContext();
+
+    // Get user data from Fireproof
+    const { docs: userMovies } = useLiveQuery("_id", { descending: true });
+    const userMovieData = userMovies.find(m => m._id === movieId?.toString());
 
     // Navigation state for scrollable sections
     const [castScrollPosition, setCastScrollPosition] = useState(0);
     const [videoScrollPositions, setVideoScrollPositions] = useState({});
+
+    // Update local state when Fireproof data changes
+    useEffect(() => {
+        if (userMovieData) {
+            setUserRating(userMovieData.userRating || 0);
+            setIsFavorite(!!userMovieData.favorite);
+        }
+    }, [userMovieData]);
+
     // Add to Favorites Handler
-    const handleAddToFavorites = (movie) => {
+    const handleAddToFavorites = async (movie) => {
         if (!movie) return;
-        if (!movie) return;
-        if (isFavorite(movie.id)) {
-            removeFromFavorites(movie.id);
-        } else {
-            addToFavorites(movie);
+        
+        const newFavoriteState = !isFavorite;
+        setIsFavorite(newFavoriteState);
+        
+        const docId = movieId?.toString();
+        const updatedDoc = { 
+            ...movie, 
+            ...userMovieData,
+            _id: docId, 
+            favorite: newFavoriteState 
+        };
+        
+        try {
+            await database.put(updatedDoc);
+        } catch (err) {
+            console.error('Failed to toggle favorite:', err);
+            setIsFavorite(!newFavoriteState); // revert on error
         }
     };
 
     // Star Rating Handler
-    const handleRating = (rating) => {
+    const handleRating = async (rating) => {
         setUserRating(rating);
-        console.log(`Rated ${movie?.title || 'Unknown Movie'}: ${rating} stars`);
+        
+        const docId = movieId?.toString();
+        const updatedDoc = { 
+            ...movie, 
+            ...userMovieData,
+            _id: docId, 
+            userRating: rating 
+        };
+        
+        try {
+            await database.put(updatedDoc);
+            console.log(`Rated ${movie?.title || 'Unknown Movie'}: ${rating} stars`);
+        } catch (err) {
+            console.error('Failed to save rating:', err);
+            setUserRating(userMovieData?.userRating || 0); // revert on error
+        }
     };
 
     // Navigation functions for cast section
@@ -84,6 +125,7 @@ const MovieDetails = ({ movieId }) => {
             }));
         }
     };
+
     useEffect(() => {
         const fetchMovieData = async () => {
             if (!movieId) return;
@@ -137,7 +179,6 @@ const MovieDetails = ({ movieId }) => {
 
         fetchMovieData();
     }, [movieId]);
-
 
     if (loading) {
         return (
@@ -195,7 +236,7 @@ const MovieDetails = ({ movieId }) => {
                     )}
                     <span className="popularity">{movie.vote_average || 0}/10</span>
                     <button className="favorites-button" onClick={() => handleAddToFavorites(movie)}>
-                        {isFavorite(movie.id) ? '❤️' : '🤍'}
+                        {isFavorite ? '❤️' : '🤍'}
                     </button>
                 </h1>
                 <div className="stat star-rating">

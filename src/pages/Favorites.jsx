@@ -1,5 +1,5 @@
 
-import { useMovieContext } from '../contexts/MovieContext';
+import { useFireproofContext } from '../contexts/FireproofContext';
 import MovieCard from '../components/MovieCard';
 import { useNavigate, Link } from 'react-router-dom';
 import '../css/Favorites.css';
@@ -7,7 +7,11 @@ import { useState } from 'react';
 
 
 export default function Favorite() {
-    const { favorites } = useMovieContext();
+    const { useLiveQuery } = useFireproofContext();
+    const { docs } = useLiveQuery("_id", { descending: true });
+    // Debug: log docs to inspect Fireproof data
+    console.log('Fireproof docs:', docs);
+    const favorites = docs.filter(m => m.favorite === true);
     const navigate = useNavigate();
     const [error, setError] = useState(null);
 
@@ -76,11 +80,11 @@ export default function Favorite() {
                     <div className="movies-grid">
                         {favorites.map((movie) => (
                             <div
-                                key={movie.id}
+                                key={movie._id || movie.id}
                                 className="movie-card-container"
-                                onClick={() => handleMovieClick(movie.id)}
+                                onClick={() => handleMovieClick(movie.id || movie._id)}
                             >
-                                <MovieCard movie={movie} />
+                                <MovieCard movie={movie} certification={movie.certification} />
                             </div>
                         ))}
                     </div>
