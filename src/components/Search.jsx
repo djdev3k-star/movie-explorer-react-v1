@@ -16,11 +16,12 @@ export default function Search(
     const debounceRef = useRef();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [hasSearched, setHasSearched] = useState(false);
 
     // Debounced live search effect
     useEffect(() => {
         if (!searchQuery.trim()) {
-            setMovies([]);
+            if (hasSearched) setMovies([]);
             setError(null);
             setLoading(false);
             return;
@@ -40,13 +41,14 @@ export default function Search(
         }, 400);
         return () => clearTimeout(debounceRef.current);
         // eslint-disable-next-line
-    }, [searchQuery, setMovies]);
+    }, [searchQuery, setMovies, hasSearched]);
 
     // For accessibility, still allow form submit
     const handleSearch = async (e) => {
         e.preventDefault();
         if (!searchQuery.trim()) return;
         setLoading(true);
+        setHasSearched(true);
         try {
             const searchResults = await searchMovies(searchQuery);
             setMovies(searchResults);
@@ -64,6 +66,7 @@ export default function Search(
         if (e.target.value) {
             setError(null);
         }
+        setHasSearched(true);
     };
 
     return (
