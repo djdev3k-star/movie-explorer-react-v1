@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { getMovieDetails, getMovieCredits } from '../services/api'; // Import the new credits API
+import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { getMovieDetails, getMovieCredits, getMovieVideos } from '../services/api';
 import { useMovieContext } from '../contexts/MovieContext';
 import '../css/MovieDetails.css';
 
@@ -25,9 +26,8 @@ const formatReleaseDate = (releaseDate) => {
 const MovieDetails = ({ movieId }) => {
     const [movie, setMovie] = useState(null);
     const [cast, setCast] = useState([]);
-    const [crew, setCrew] = useState([]);
     const [groupedVideos, setGroupedVideos] = useState({});
-    const [userRating, setUserRating] = useState(0); // User's star rating
+    const [userRating, setUserRating] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { addToFavorites, removeFromFavorites, isFavorite } = useMovieContext();
@@ -85,38 +85,45 @@ const MovieDetails = ({ movieId }) => {
     };
     useEffect(() => {
         const fetchMovieData = async () => {
+            if (!movieId) return;
+            
+            setLoading(true);
+            setError(null);
+            
             try {
-                setLoading(true);
-                setError(null);
-                setError(null);
-                const movieData = await getMovieDetails(movieId);
+                const [movieData, creditsData, videosData] = await Promise.all([
+                    getMovieDetails(movieId),
+                    getMovieCredits(movieId),
+                    getMovieVideos(movieId)
+                ]);
                 
                 if (!movieData) {
                     throw new Error('Movie not found');
                 }
-                
-                
-                if (!movieData) {
-                    throw new Error('Movie not found');
-                }
-                
+
+                // Set movie details
                 setMovie(movieData);
 
-                if (movieData.videos?.results) {
-                    const grouped = movieData.videos.results.reduce((acc, video) => {
-                        acc[video.type] = acc[video.type] || [];
+                // Set cast information
+                if (creditsData?.cast) {
+                    setCast(creditsData.cast.slice(0, 20)); // Limit to top 20 cast members
+                }
+
+                // Group and sort videos by type
+                if (videosData?.results) {
+                    const grouped = videosData.results.reduce((acc, video) => {
+                        if (!acc[video.type]) acc[video.type] = [];
                         acc[video.type].push(video);
                         return acc;
                     }, {});
+
+                    // Sort videos by publish date
                     Object.keys(grouped).forEach((type) => {
                         grouped[type].sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
                     });
+
                     setGroupedVideos(grouped);
                 }
-
-                const creditsData = await getMovieCredits(movieId);
-                setCast(creditsData?.cast?.slice(0, 10) || []); // Limit cast to 10 members
-                setCrew(creditsData?.crew || []); // Save crew info
             } catch (error) {
                 console.error('Failed to fetch movie details:', error);
                 setError('Failed to load movie details');
@@ -125,9 +132,7 @@ const MovieDetails = ({ movieId }) => {
             }
         };
 
-        if (movieId) {
-            fetchMovieData();
-        }
+        fetchMovieData();
     }, [movieId]);
 
 
@@ -300,6 +305,10 @@ const MovieDetails = ({ movieId }) => {
             )}
         </div>
     );
+};
+
+MovieDetails.propTypes = {
+    movieId: PropTypes.string.isRequired
 };
 
 export default MovieDetails;

@@ -2,7 +2,9 @@ const ALLOWED_ENDPOINTS = [
   'movie/popular',
   'search/movie',
   'movie',
-  'genre/movie/list'
+  'genre/movie/list',
+  'movie/videos',
+  'movie/similar'
 ];
 
 /**
@@ -96,17 +98,16 @@ export async function handler(event) {
 
   try {
     const { endpoint, ...queryParams } = event.queryStringParameters || {};
-    const apiKey = process.env.TMDB_API_KEY;
 
-    // Validate required parameters
-    if (!apiKey) {
-      console.error('TMDB_API_KEY not configured');
+    // API key was already validated above, no need to check again
+    if (!endpoint) {
+      console.error('No endpoint provided');
       return {
-        statusCode: 500,
+        statusCode: 400,
         headers,
         body: JSON.stringify({ 
-          error: 'Server configuration error',
-          details: 'API key not configured'
+          error: 'Missing parameter',
+          details: 'Endpoint parameter is required'
         })
       };
     }
@@ -128,7 +129,7 @@ export async function handler(event) {
     const tmdbUrl = constructTmdbUrl(validatedEndpoint, queryParams, apiKey);
     console.log('Requesting TMDB URL:', tmdbUrl.replace(apiKey, '[REDACTED]'));
 
-    // Make the request to TMDB
+      // Make the request to TMDB
     const response = await fetch(tmdbUrl);
     const data = await response.json();
 
@@ -142,6 +143,16 @@ export async function handler(event) {
           error: 'TMDB API error',
           details: data.status_message || 'Unknown error occurred'
         })
+      };
+    }
+
+    // For video endpoints, verify we have results
+    if (validatedEndpoint.includes('/videos') && (!data.results || !Array.isArray(data.results))) {
+      console.warn('No valid video results found');
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ results: [] })
       };
     }
 

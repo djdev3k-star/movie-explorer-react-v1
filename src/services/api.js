@@ -86,3 +86,13 @@ export async function getMovieCredits(movieId) {
   if (!movieId) throw new Error('Movie ID is required');
   return await makeProxyRequest(`movie/${movieId}/credits`);
 }
+
+/**
+ * Get videos (trailers, teasers, etc.) for a specific movie
+ * @param {number|string} movieId - The movie ID
+ * @returns {Promise<Object>} Movie videos data
+ */
+export async function getMovieVideos(movieId) {
+  if (!movieId) throw new Error('Movie ID is required');
+  return await makeProxyRequest(`movie/${movieId}/videos`);
+}

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import '../css/NavBar.css'
+import logo from '../assets/logo.svg'; // Assuming you have a logo image
 
 export default function NavBar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -9,8 +10,8 @@ export default function NavBar() {
         <nav className="navbar">
             <div className="navbar-brand">
                 <Link to="/">
-                    <span className="logo">🎬</span> 
-                    Movie Trek
+                    
+                    <span className="brand-name"><img src={logo} alt="Movie Trek" className="nav-logo" /></span>
                 </Link>
             </div>
 
