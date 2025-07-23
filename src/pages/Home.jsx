@@ -3,7 +3,6 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"; // For navigation
 import { searchMovies, getPopularMovies } from "../services/api"
 import '../css/Home.css'
-import backgroundVideo from '../assets/movie-explorer.mp4'
 
 export default function Home () {
     const [searchQuery, setSearchQuery] = useState("")
@@ -78,15 +77,6 @@ export default function Home () {
     return (        
         <div className="home">
             <div className="hero-section">
-                <video
-                    className="hero-background-video"
-                    autoPlay
-                    
-                    muted
-                    playsInline
-                >
-                    <source src={backgroundVideo} type="video/mp4" />
-                </video>
                 <div className="hero-content">
                     <h1 className="hero-title">🎬 Movie Trek</h1>
                     <p className="hero-subtitle">
