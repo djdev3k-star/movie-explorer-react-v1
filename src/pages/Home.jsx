@@ -2,7 +2,7 @@ import MovieCard from "../components/MovieCard"
 import Search from "../components/Search";
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"; // For navigation
-import { searchMovies, getPopularMovies } from "../services/api"
+import { searchMovies, getPopularMovies, getMovieCertification } from "../services/api"
 import '../css/Home.css'
 
 export default function Home () {
@@ -18,7 +18,12 @@ export default function Home () {
         const loadPopularMovies = async () => {
             try {
                 const popularMovies = await getPopularMovies();
-                setMovies(popularMovies)
+                // Fetch certifications in parallel
+                const moviesWithCerts = await Promise.all(popularMovies.map(async (movie) => {
+                    const certification = await getMovieCertification(movie.id);
+                    return { ...movie, certification };
+                }));
+                setMovies(moviesWithCerts)
             } catch (err) {
                 setError("Failed to load popular movies. Please try again later.");
                 setErrorType('load');
@@ -38,7 +43,12 @@ export default function Home () {
        setLoading(true) 
         try {
             const searchResults = await searchMovies(searchQuery)
-            setMovies(searchResults)
+            // Fetch certifications in parallel
+            const moviesWithCerts = await Promise.all(searchResults.map(async (movie) => {
+                const certification = await getMovieCertification(movie.id);
+                return { ...movie, certification };
+            }));
+            setMovies(moviesWithCerts)
             setError(null)
             setErrorType(null);
         }            
@@ -117,7 +127,7 @@ export default function Home () {
                             className="movie-card-container"
                             onClick={() => handleMovieClick(movie.id)}
                         >
-                            <MovieCard movie={movie} />
+                            <MovieCard movie={movie} certification={movie.certification} />
                         </div>
                     ))}
                 </div>

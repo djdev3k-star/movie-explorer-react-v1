@@ -96,3 +96,17 @@ export async function getMovieVideos(movieId) {
   if (!movieId) throw new Error('Movie ID is required');
   return await makeProxyRequest(`movie/${movieId}/videos`);
 }
+
+/**
+ * Get US content rating (certification) for a specific movie
+ * @param {number|string} movieId - The movie ID
+ * @returns {Promise<string|null>} Certification (e.g., 'PG-13', 'R'), or null if not found
+ */
+export async function getMovieCertification(movieId) {
+  if (!movieId) throw new Error('Movie ID is required');
+  const data = await makeProxyRequest(`movie/${movieId}/release_dates`);
+  const usRelease = data.results?.find(r => r.iso_3166_1 === 'US');
+  if (!usRelease) return null;
+  const cert = usRelease.release_dates?.find(rd => rd.certification)?.certification;
+  return cert || null;
+}

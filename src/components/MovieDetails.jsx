@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { getMovieDetails, getMovieCredits, getMovieVideos } from '../services/api';
+import { getMovieDetails, getMovieCredits, getMovieVideos, getMovieCertification } from '../services/api';
 import { useMovieContext } from '../contexts/MovieContext';
 import '../css/MovieDetails.css';
 
@@ -25,6 +25,7 @@ const formatReleaseDate = (releaseDate) => {
 
 const MovieDetails = ({ movieId }) => {
     const [movie, setMovie] = useState(null);
+    const [certification, setCertification] = useState(null);
     const [cast, setCast] = useState([]);
     const [groupedVideos, setGroupedVideos] = useState({});
     const [userRating, setUserRating] = useState(0);
@@ -91,10 +92,11 @@ const MovieDetails = ({ movieId }) => {
             setError(null);
             
             try {
-                const [movieData, creditsData, videosData] = await Promise.all([
+                const [movieData, creditsData, videosData, cert] = await Promise.all([
                     getMovieDetails(movieId),
                     getMovieCredits(movieId),
-                    getMovieVideos(movieId)
+                    getMovieVideos(movieId),
+                    getMovieCertification(movieId)
                 ]);
                 
                 if (!movieData) {
@@ -103,6 +105,7 @@ const MovieDetails = ({ movieId }) => {
 
                 // Set movie details
                 setMovie(movieData);
+                setCertification(cert);
 
                 // Set cast information
                 if (creditsData?.cast) {
@@ -182,9 +185,14 @@ const MovieDetails = ({ movieId }) => {
             }}
         >
             <article className="movie-header">
-                <h1>
+                <h1 style={{position: 'relative'}}>
                     {movie.title || 'Unknown Title'}
                     <span className="release"> ({formatReleaseYear(movie.release_date)})</span>
+                    {certification && (
+                        <span className="certification-badge" style={{position: 'absolute', top: 0, right: 0, background: 'rgba(0,0,0,0.7)', color: '#fff', borderRadius: '4px', padding: '2px 8px', fontWeight: 'bold', fontSize: '0.95em', marginLeft: '8px'}} title="Content Rating">
+                            {certification}
+                        </span>
+                    )}
                     <span className="popularity">{movie.vote_average || 0}/10</span>
                     <button className="favorites-button" onClick={() => handleAddToFavorites(movie)}>
                         {isFavorite(movie.id) ? '❤️' : '🤍'}

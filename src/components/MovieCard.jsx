@@ -19,7 +19,7 @@ import PropTypes from 'prop-types';
  * @param {string} [props.movie.release_date] - Release date of the movie
  * @returns {JSX.Element} A card displaying movie information
  */
-export default function MovieCard({movie}) {
+export default function MovieCard({movie, certification}) {
     const navigate = useNavigate();
     const { addToFavorites, removeFromFavorites, isFavorite } = useMovieContext();
 
@@ -65,6 +65,12 @@ export default function MovieCard({movie}) {
             aria-label={`Movie: ${movie.title}`}
         >
             <div className="movie-poster">
+                {/* Certification badge in top right corner */}
+                {certification && (
+                    <div className="certification-badge" style={{position: 'absolute', top: 8, right: 8, background: 'rgba(0,0,0,0.7)', color: '#fff', borderRadius: '4px', padding: '2px 8px', fontWeight: 'bold', fontSize: '0.95em', zIndex: 2}} title="Content Rating">
+                        {certification}
+                    </div>
+                )}
                 {qualityBadge && (
                     <div className="quality-badge" role="status">
                         {qualityBadge}
@@ -79,7 +85,8 @@ export default function MovieCard({movie}) {
                 </picture>
                 <div className="movie-overlay">
                     <button 
-                        className={`favorite-btn ${isFavorite(movie.id) ? 'active' : ''}`} 
+                        className={`favorite-btn ${isFavorite(movie.id) ? 'active' : ''}`}
+                        style={{position: 'absolute', top: 40, right: 8, zIndex: 2, background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', padding: '6px', cursor: 'pointer'}}
                         onClick={onFavoriteClick}
                         aria-label={isFavorite(movie.id) ? 'Remove from favorites' : 'Add to favorites'}
                     >
@@ -91,8 +98,8 @@ export default function MovieCard({movie}) {
                 <h3>{movie.title}</h3>
                 <p>{formatReleaseYear(movie.release_date)}</p>
                 {movie.vote_average > 0 && (
-                    <div className="user-rating">
-                        {movie.vote_average.toFixed(1)}
+                    <div className="user-rating" title="TMDB Rating">
+                        <span className="tmdb-rating-label">TMDB Rating:</span> {movie.vote_average.toFixed(1)}
                     </div>
                 )}
             </div>
